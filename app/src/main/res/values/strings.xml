@@ -143,4 +143,10 @@
     <string name="action_configure">Configure</string>
     <string name="label_device_discovery">Device discovery</string>
     <string name="label_ripple_animation">Ripple animation</string>
+    <string name="handoff_title">App handoff</string>
+    <string name="handoff_description">Offer your recent Android app in the Mac Dock. Enable App handoff in AirSync on your Mac too.</string>
+    <string name="handoff_grant_access">Grant Usage Access</string>
+    <string name="handoff_access_granted">Usage Access granted</string>
+    <string name="handoff_permission_description">AirSync reads the foreground app name. Screen contents and usage history are not sent.</string>
+    <string name="handoff_permission_unavailable">Open Android Settings and grant AirSync Usage Access.</string>
 </resources>

@@ -844,6 +844,7 @@ object WebSocketUtil {
 
     // Notify listeners about the connection status
     private fun notifyConnectionStatusListeners(isConnected: Boolean) {
+        if (!isConnected) HandoffReporter.setPeerVersion(0)
         connectionStatusListeners.forEach { listener ->
             listener(isConnected)
         }

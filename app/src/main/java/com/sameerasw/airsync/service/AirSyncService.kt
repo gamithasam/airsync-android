@@ -65,6 +65,7 @@ class AirSyncService : Service() {
         Log.d(TAG, "AirSyncService created")
         createNotificationChannel()
         MacDeviceStatusManager.startMonitoring(this)
+        com.sameerasw.airsync.utils.HandoffReporter.start(this)
         registerNetworkCallback()
         WebSocketUtil.registerConnectionStatusListener(connectionStatusListener)
 
@@ -380,6 +381,7 @@ class AirSyncService : Service() {
     override fun onDestroy() {
         Log.d(TAG, "AirSyncService destroyed")
         serviceInstance = null
+        com.sameerasw.airsync.utils.HandoffReporter.stop()
         WebSocketUtil.unregisterConnectionStatusListener(connectionStatusListener)
 
         networkCallback?.let {

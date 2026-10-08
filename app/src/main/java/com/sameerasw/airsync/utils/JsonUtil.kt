@@ -23,7 +23,7 @@ object JsonUtil {
     ): String {
         val targetIpJson =
             if (targetIpAddress != null) """, "targetIpAddress": "$targetIpAddress" """ else ""
-        return """{"type":"device","data":{"name":"$name","ipAddress":"$ipAddress","port":$port,"version":"$version","adbPorts":[]$targetIpJson}}"""
+        return """{"type":"device","data":{"name":"$name","ipAddress":"$ipAddress","port":$port,"version":"$version","handoffVersion":1,"adbPorts":[]$targetIpJson}}"""
     }
 
     /**
@@ -41,7 +41,7 @@ object JsonUtil {
         val portsJson = adbPorts.joinToString(",") { "\"$it\"" }
         val targetIpJson =
             if (targetIpAddress != null) """, "targetIpAddress": "$targetIpAddress" """ else ""
-        return """{"type":"device","data":{"id":"$id","name":"$name","ipAddress":"$ipAddress","port":$port,"version":"$version","adbPorts":[$portsJson]$targetIpJson}}"""
+        return """{"type":"device","data":{"id":"$id","name":"$name","ipAddress":"$ipAddress","port":$port,"version":"$version","handoffVersion":1,"adbPorts":[$portsJson]$targetIpJson}}"""
     }
 
     /**
@@ -71,7 +71,7 @@ object JsonUtil {
         val portsJson = adbPorts.joinToString(",") { "\"$it\"" }
         val targetIpJson =
             if (targetIpAddress != null) """, "targetIpAddress": "$targetIpAddress" """ else ""
-        return """{"type":"device","data":{"id":"$id","name":"$name","ipAddress":"$ipAddress","port":$port,"version":"$version","adbPorts":[$portsJson]$wallpaperJson$bleTokenJson$targetIpJson}}"""
+        return """{"type":"device","data":{"id":"$id","name":"$name","ipAddress":"$ipAddress","port":$port,"version":"$version","handoffVersion":1,"adbPorts":[$portsJson]$wallpaperJson$bleTokenJson$targetIpJson}}"""
     }
 
     /**

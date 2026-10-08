@@ -84,6 +84,7 @@ object WebSocketMessageHandler {
                 "ping" -> handlePing(context)
                 "status" -> handleMacDeviceStatus(context, data)
                 "macInfo" -> handleMacInfo(context, data)
+                "handoffRequest" -> HandoffReporter.requestCurrent()
                 "refreshAdbPorts" -> handleRefreshAdbPorts(context)
                 "browseLs" -> handleBrowseLs(context, data)
                 "startQuickShare" -> handleStartQuickShare(context)
@@ -547,6 +548,7 @@ object WebSocketMessageHandler {
                     return@launch
                 }
 
+                HandoffReporter.setPeerVersion(data.optInt("handoffVersion", 0))
                 val macName = data.optString("name", "")
                 val isPlus = data.optBoolean("isPlusSubscription", false)
                 val macVersion = data.optString("version", "3.0.0")

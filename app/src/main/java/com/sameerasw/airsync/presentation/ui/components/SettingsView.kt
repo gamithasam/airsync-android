@@ -52,6 +52,7 @@ import com.sameerasw.airsync.R
 import com.sameerasw.airsync.domain.model.DeviceInfo
 import com.sameerasw.airsync.domain.model.UiState
 import com.sameerasw.airsync.presentation.ui.components.buttons.ListExpandToggleButton
+import com.sameerasw.airsync.presentation.ui.components.cards.HandoffSettingsCard
 import com.sameerasw.airsync.presentation.ui.components.cards.ClipboardFeaturesCard
 import com.sameerasw.airsync.presentation.ui.components.cards.DefaultTabCard
 import com.sameerasw.airsync.presentation.ui.components.cards.DeveloperModeCard
@@ -482,6 +483,7 @@ fun SettingsView(
                 RoundedCardContainer {
                     when (activeCategory) {
                         "App" -> {
+                            HandoffSettingsCard(context)
                             DefaultTabCard(
                                 currentDefaultTab = uiState.defaultTab,
                                 onDefaultTabChange = { tab -> viewModel.setDefaultTab(tab) }
