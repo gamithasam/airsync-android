@@ -10,8 +10,10 @@ class HandoffForegroundTrackerTest {
         tracker.resume("app.a", 10)
         tracker.resume("app.a", 20)
         assertEquals("session:10", tracker.eventID)
-        tracker.resume("com.android.systemui", 30)
+        tracker.pause("app.a")
+        assertFalse(tracker.isForeground)
         tracker.resume("app.a", 40)
+        assertTrue(tracker.isForeground)
         assertEquals("session:10", tracker.eventID)
     }
     @Test fun returningFromHomeCreatesANewHandoff() {

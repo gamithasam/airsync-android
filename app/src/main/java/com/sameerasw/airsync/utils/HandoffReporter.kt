@@ -41,6 +41,7 @@ object HandoffReporter {
             var cursor = 0L
             var lastSent: String? = null
             var active = false
+            var unavailableSent = false
             var tracker = HandoffForegroundTracker(UUID.randomUUID().toString())
             try {
                 while (isActive) {
@@ -51,13 +52,19 @@ object HandoffReporter {
                         active = false
                         cursor = 0L
                         lastSent = null
+                        unavailableSent = false
                         delay(1000)
                         continue
                     }
                     if (!active) { active = true; tracker = HandoffForegroundTracker(UUID.randomUUID().toString()) }
-                    if (refresh) { refresh = false; lastSent = null }
-                    // Retain the Mac's last handoff while locked, but don't query usage events.
-                    if (!power.isInteractive || keyguard.isKeyguardLocked) { delay(1000); continue }
+                    if (refresh) { refresh = false; lastSent = null; unavailableSent = false }
+                    // A locked phone has no app available for handoff.
+                    if (!power.isInteractive || keyguard.isKeyguardLocked) {
+                        if (!unavailableSent) unavailableSent = sendUnavailable()
+                        lastSent = null
+                        delay(1000)
+                        continue
+                    }
                     try {
                         val now = System.currentTimeMillis()
                         val events = usage.queryEvents(if (cursor == 0L) now - 86_400_000 else cursor, now)
@@ -66,23 +73,34 @@ object HandoffReporter {
                             events.getNextEvent(event)
                             if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
                                 tracker.resume(event.packageName, event.timeStamp)
+                            } else if (event.eventType == UsageEvents.Event.ACTIVITY_PAUSED) {
+                                tracker.pause(event.packageName)
                             }
                         }
                         cursor = now
                         val pkg = tracker.packageName
                         val id = tracker.eventID
-                        if (pkg != null && id != null && id != lastSent && pkg != app.packageName &&
+                        if (tracker.isForeground && pkg != null && id != null && pkg != app.packageName &&
                             pkg != "com.android.systemui" && pkg !in homes &&
                             app.packageManager.getLaunchIntentForPackage(pkg) != null) {
+                            if (id == lastSent) { delay(1000); continue }
                             val info = app.packageManager.getApplicationInfo(pkg, 0)
                             val data = JSONObject().put("package", pkg)
                                 .put("displayName", app.packageManager.getApplicationLabel(info).toString())
                                 .put("eventID", id)
-                            if (WebSocketUtil.sendMessage(JSONObject().put("type", "handoffApp").put("data", data).toString())) lastSent = id
+                            if (WebSocketUtil.sendMessage(JSONObject().put("type", "handoffApp").put("data", data).toString())) {
+                                lastSent = id
+                                unavailableSent = false
+                            }
+                        } else {
+                            if (!unavailableSent) unavailableSent = sendUnavailable()
+                            lastSent = null
                         }
                     } catch (e: Exception) {
                         Log.w("Handoff", "Unable to read foreground app", e)
-                        if (!hasUsageAccess(app)) { sendUnavailable(); active = false }
+                        if (!unavailableSent) unavailableSent = sendUnavailable()
+                        lastSent = null
+                        if (!hasUsageAccess(app)) active = false
                     }
                     delay(1000)
                 }
@@ -91,8 +109,8 @@ object HandoffReporter {
             }
         }
     }
-    private fun sendUnavailable() {
-        WebSocketUtil.sendMessage(JSONObject().put("type", "handoffUnavailable").put("data", JSONObject()).toString())
+    private fun sendUnavailable(): Boolean {
+        return WebSocketUtil.sendMessage(JSONObject().put("type", "handoffUnavailable").put("data", JSONObject()).toString())
     }
     fun stop() { job?.cancel(); job = null }
 }
